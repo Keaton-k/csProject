@@ -1,20 +1,50 @@
+import sys
 import cv2
 import numpy as np
+#color=input("what is the color \n")
+#print(color,"\n")
+#lighting=input("what is the lighting \n")
 
-cap = cv2.VideoCapture(0)
+
+#cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
+
 
 def nothing(x) :
     pass
 
 cv2.namedWindow("Trackbar")
 
-#This is the setup for the color red
-cv2.createTrackbar("L-H", "Trackbar", 157, 255,nothing)
-cv2.createTrackbar("L-S", "Trackbar", 113, 255,nothing)
-cv2.createTrackbar("L-V", "Trackbar",180, 180,nothing)
-cv2.createTrackbar("U-H", "Trackbar", 180, 180,nothing)
-cv2.createTrackbar("U-S", "Trackbar", 255, 255,nothing)
-cv2.createTrackbar("U-V", "Trackbar", 255, 255,nothing)
+if len(sys.argv)>=2:
+    color = sys.argv[1]
+    lighting=sys.argv[2]
+else:
+    color="r"
+    lighting="r"
+
+if color == "p" and lighting=="l":
+    cv2.createTrackbar("L-H", "Trackbar", 118, 255,nothing)
+    cv2.createTrackbar("L-S", "Trackbar", 69, 255,nothing)
+    cv2.createTrackbar("L-V", "Trackbar",80, 180,nothing)
+    cv2.createTrackbar("U-H", "Trackbar", 180, 180,nothing)
+    cv2.createTrackbar("U-S", "Trackbar", 255, 255,nothing)
+    cv2.createTrackbar("U-V", "Trackbar", 255, 255,nothing)
+elif color == "p" and lighting=="d":
+    cv2.createTrackbar("L-H", "Trackbar", 149, 255,nothing)
+    cv2.createTrackbar("L-S", "Trackbar", 102, 255,nothing)
+    cv2.createTrackbar("L-V", "Trackbar",16, 180,nothing)
+    cv2.createTrackbar("U-H", "Trackbar", 180, 180,nothing)
+    cv2.createTrackbar("U-S", "Trackbar", 255, 255,nothing)
+    cv2.createTrackbar("U-V", "Trackbar", 255, 255,nothing)
+else:
+    cv2.createTrackbar("L-H", "Trackbar", 157, 255,nothing)
+    cv2.createTrackbar("L-S", "Trackbar", 113, 255,nothing)
+    cv2.createTrackbar("L-V", "Trackbar",180, 180,nothing)
+    cv2.createTrackbar("U-H", "Trackbar", 180, 180,nothing)
+    cv2.createTrackbar("U-S", "Trackbar", 255, 255,nothing)
+    cv2.createTrackbar("U-V", "Trackbar", 255, 255,nothing)
+    print("this color has not been implemented the default is red in dark lighting")
+
 
 
 
@@ -53,21 +83,30 @@ while True:
 
     # Contours/shape outlines
     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    font=cv2.FONT_HERSHEY_COMPLEX
 
     for outline in contours:
         area = cv2.contourArea(outline)
         approx = cv2.approxPolyDP(outline, 0.05*cv2.arcLength(outline, True),True)
+        x=approx.ravel()[0]
+        y=approx.ravel()[1]
         # add if to limit noise like 400 pixel requirment to draw contour
         #if area > 400 code below
-        if area > 50:
+        if area > 500:
             cv2.drawContours(frame, [approx], 0, (0,0,0), 5)
 
             if len(approx) ==3:
-                print('its a triangle')
+                cv2.putText(frame,"triangle",(x,y),font,1,(0,0,0))
+                #print('its a triangle')
             elif len(approx) ==4:
-                print('its a rectangle')
+                cv2.putText(frame,"rectangle",(x,y),font,1,(0,0,0))
+                #print('its a rectangle')
             elif len(approx) ==5:
-                print('its a pentagon')
+                cv2.putText(frame,"pentagon",(x,y),font,1,(0,0,0))
+                #print('its a pentagon')
+            elif len(approx) >10 and len(approx) < 50:
+                cv2.putText(frame,"circle",(x,y),font,1,(0,0,0))
+
        # else:
         #    print('its a circle')
 
