@@ -3,24 +3,39 @@ import cv2
 import numpy as np
 from board import SCL,SDA
 import busio
-from adafruit_motor import sevo
+from adafruit_motor import servo
 from adafruit_pca9685 import PCA9685
+import time
 
+i2c = busio.I2C(SCL,SDA)
+
+pca = PCA9685(i2c)
+
+pca.frequency = 50
 
 #These are arbitrary channel values will proably have to change them
-servo0 = servo.ContinousServo(pca.channels[2], min_pulse=900, max_pulse=2100)
-servo1 = servo.ContinousServo(pca.channels[6], min_pulse=900, max_pulse=2100)
+servo0 = servo.ContinuousServo(pca.channels[4], min_pulse=900, max_pulse=2100)
+servo1 = servo.ContinuousServo(pca.channels[0], min_pulse=900, max_pulse=2100)
 
 def driveForward():
     #temp
-    servo0.throttle = 1.0
-    servo1.throttle = 1.0
+    servo0.throttle = 0.25
+    servo1.throttle = -0.25
+    time.sleep(1)
+    servo0.throttle = -0.0001
+    servo1.throttle = 0.0001
 
 
 def driveBackwards():
     #temp
-    servo0.throttle = -1.0
-    servo1.throttle = -1.0
+    #pca.frequency = 50
+    servo0.throttle = -0.25
+    servo1.throttle = 0.25
+    time.sleep(1)
+    servo0.throttle = -0.0001
+    servo1.throttle = 0.0001
+
+    #pca.frequency = 0
 
 
 def turnRight():
@@ -36,16 +51,16 @@ def turnLeft():
 
 
 def stop():
-    servo0.throttle = 0.0
-    servo1.throttle = 0.0
+    servo0.throttle = 0.01
+    servo1.throttle = -0.01
 
 #color=input("what is the color \n")
 #print(color,"\n")
 #lighting=input("what is the lighting \n")
 
 
-#cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(1)
 
 
 def nothing(x) :
@@ -134,33 +149,41 @@ while True:
             cv2.drawContours(frame, [approx], 0, (0,0,0), 5)
 
             if len(approx) ==3:
-                cv2.putText(frame,"triangle",(x,y),font,1,(0,0,0))
-                driveForward();
+                #cv2.putText(frame,"triangle",(x,y),font,1,(0,0,0))
+                driveForward()
+                #stop()
                 #print('its a triangle')
             elif len(approx) ==4:
-                cv2.putText(frame,"rectangle",(x,y),font,1,(0,0,0))
+               # cv2.putText(frame,"rectangle",(x,y),font,1,(0,0,0))
                 driveBackwards()
+                #stop()
                 #print('its a rectangle')
             elif len(approx) ==5:
                 cv2.putText(frame,"pentagon",(x,y),font,1,(0,0,0))
                 #print('its a pentagon')
-                turnRight()
+                #turnRight()
             elif len(approx) == 6:
                 cv2.putText(frame,"hexagon",(x,y),font,1,(0,0,0))
-                turnLeft()
+                #turnLeft()
             elif len(approx) >10 and len(approx) < 50:
                 cv2.putText(frame,"circle",(x,y),font,1,(0,0,0))
+
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+        stop()
+
 
        # else:
         #    print('its a circle')
 
 
-    cv2.imshow("Frame", frame)
-    cv2.imshow("Mask", mask)
+    #cv2.imshow("Frame", frame)
+    #cv2.imshow("Mask", mask)
 
-    key = cv2.waitKey(1)
-    if key == 27:
-        break
+        #key = cv2.waitKey(1)
+        #if key == 27:
+           # break
 
 cap.release()
 cv2.destroyAllWindows()
